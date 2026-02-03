@@ -17,6 +17,25 @@ class TareasController extends Controller
         $this->view('tareas/index', ['tareas' => $tareas]);
     }
 
+    public function buscar(): void
+    {
+        $this->requireLogin();
+
+        $q = trim($_GET['q'] ?? '');
+
+        $tareas = [];
+        if ($q !== '') {
+            $tareaModel = new Tarea($this->db->pdo());
+            $tareas = $tareaModel->buscarPorTitulo($q);
+        }
+
+        $this->view('tareas/buscar', [
+            'q' => $q,
+            'tareas' => $tareas
+        ]);
+    }
+
+
     public function crear(): void
     {
         $this->requireLogin();
@@ -26,7 +45,7 @@ class TareasController extends Controller
 
         $error = '';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Sanitización rápida
+            // Sanitización
             $fecha = $_POST['fecha'] ?? '';
             $hora  = $_POST['hora'] ?? '';
             $titulo = trim(filter_input(INPUT_POST, 'titulo', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
@@ -35,7 +54,7 @@ class TareasController extends Controller
             $prioridad = (int)($_POST['prioridad'] ?? 1);
             $cat_id = (int)($_POST['cat_id'] ?? 0);
 
-            // Imagen (de momento texto/ruta; la subida real es ejercicio 2.6)
+            // Imagen (IMPLEMENTAR!)
             $imagen = trim($_POST['imagen'] ?? '');
 
             if ($fecha === '' || $hora === '' || $titulo === '' || $descripcion === '' || $lugar === '' || $cat_id <= 0) {

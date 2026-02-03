@@ -1,14 +1,20 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">Tareas de hoy</h4>
 
-    <div class="d-flex gap-2">
-        <a class="btn btn-dark" href="<?= BASE_URL ?>/?c=tareas&a=crear">
-            <i class="bi bi-plus-circle"></i> Añadir tarea
-        </a>
-        <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=auth&a=logout">
-            <i class="bi bi-box-arrow-right"></i> Salir
-        </a>
-    </div>
+<div class="d-flex gap-2">
+  <a class="btn btn-dark" href="<?= BASE_URL ?>/?c=tareas&a=crear">
+    <i class="bi bi-plus-circle"></i> Añadir tarea
+  </a>
+
+  <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=tareas&a=buscar">
+    <i class="bi bi-search"></i> Buscar
+  </a>
+
+  <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=auth&a=logout">
+    <i class="bi bi-box-arrow-right"></i> Salir
+  </a>
+</div>
+
 </div>
 
 <?php if (empty($tareas)): ?>
