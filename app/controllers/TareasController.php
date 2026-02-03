@@ -35,6 +35,34 @@ class TareasController extends Controller
         ]);
     }
 
+    public function rango(): void
+    {
+        $this->requireLogin();
+
+        $inicio = $_GET['inicio'] ?? '';
+        $fin    = $_GET['fin'] ?? '';
+
+        $tareas = [];
+        $error  = '';
+
+        if ($inicio !== '' && $fin !== '') {
+            if ($inicio > $fin) {
+                $error = "La fecha de inicio no puede ser mayor que la fecha fin";
+            } else {
+                $tareaModel = new Tarea($this->db->pdo());
+                $tareas = $tareaModel->rango($inicio, $fin);
+            }
+        }
+
+        $this->view('tareas/rango', [
+            'inicio' => $inicio,
+            'fin' => $fin,
+            'tareas' => $tareas,
+            'error' => $error
+        ]);
+    }
+
+
 
     public function crear(): void
     {
@@ -55,7 +83,9 @@ class TareasController extends Controller
             $cat_id = (int)($_POST['cat_id'] ?? 0);
 
             // Imagen (IMPLEMENTAR!)
-            $imagen = trim($_POST['imagen'] ?? '');
+            $imagenSubida = $this->subirImagenTarea('imagen');
+            $imagen = $imagenSubida ?? '';
+
 
             if ($fecha === '' || $hora === '' || $titulo === '' || $descripcion === '' || $lugar === '' || $cat_id <= 0) {
                 $error = "Faltan datos obligatorios";
@@ -147,7 +177,13 @@ class TareasController extends Controller
         $lugar = trim(filter_input(INPUT_POST, 'lugar', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
         $prioridad = (int)($_POST['prioridad'] ?? 1);
         $cat_id = (int)($_POST['cat_id'] ?? 0);
-        $imagen = trim($_POST['imagen'] ?? '');
+        // Imagen
+        $tareaModelTmp = new Tarea($this->db->pdo());
+        $tareaActual = $tareaModelTmp->find($id);
+
+        $imagenSubida = $this->subirImagenTarea('imagen');
+        $imagen = $imagenSubida ?? ($tareaActual['imagen'] ?? '');
+
 
         if ($fecha === '' || $hora === '' || $titulo === '' || $descripcion === '' || $lugar === '' || $cat_id <= 0) {
             $error = "Faltan datos obligatorios";
@@ -200,5 +236,42 @@ class TareasController extends Controller
         $tareaModel->delete($id);
 
         $this->redirect('/?c=tareas&a=hoy');
+    }
+
+    private function subirImagenTarea(string $campo): ?string
+    {
+        if (empty($_FILES[$campo]) || $_FILES[$campo]['error'] === UPLOAD_ERR_NO_FILE) {
+            return null; // no se subió nada
+        }
+
+        if ($_FILES[$campo]['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $tmp  = $_FILES[$campo]['tmp_name'];
+        $name = $_FILES[$campo]['name'];
+
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $permitidas = ['jpg', 'jpeg', 'png', 'webp'];
+
+        if (!in_array($ext, $permitidas, true)) {
+            return null;
+        }
+
+        // Nombre único
+        $nuevoNombre = 'tarea_' . date('Ymd_His') . '_' . mt_rand(1000, 9999) . '.' . $ext;
+
+        $destinoDir = __DIR__ . '/../../public/images/tareas/';
+        if (!is_dir($destinoDir)) {
+            mkdir($destinoDir, 0777, true);
+        }
+
+        $destino = $destinoDir . $nuevoNombre;
+
+        if (!move_uploaded_file($tmp, $destino)) {
+            return null;
+        }
+
+        return $nuevoNombre; // guardamos solo el nombre en BD
     }
 }

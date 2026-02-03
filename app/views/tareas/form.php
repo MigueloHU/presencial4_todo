@@ -8,8 +8,9 @@
                     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
 
-                <form method="post"
+                <form method="post" enctype="multipart/form-data"
                     action="<?= BASE_URL ?>/?c=tareas&a=<?= $modo === 'crear' ? 'crear' : 'modificar&id=' . (int)$tarea['id'] ?>">
+
 
                     <div class="row g-2">
                         <div class="col-md-6">
@@ -68,8 +69,18 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">Imagen tarea (texto, 2.6 será subida)</label>
-                            <input name="imagen" class="form-control" value="<?= $tarea['imagen'] ?? '' ?>">
+                            <label class="form-label">Imagen de la tarea</label>
+                            <input type="file" name="imagen" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+
+                            <?php if (!empty($tarea['imagen'])): ?>
+                                <div class="mt-2">
+                                    <div class="small text-muted">Imagen actual:</div>
+                                    <img src="<?= BASE_URL ?>/images/tareas/<?= htmlspecialchars($tarea['imagen']) ?>"
+                                        style="max-width:160px"
+                                        class="img-fluid rounded border">
+                                </div>
+                            <?php endif; ?>
+
                         </div>
                     </div>
 

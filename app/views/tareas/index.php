@@ -1,20 +1,23 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">Tareas de hoy</h4>
 
-<div class="d-flex gap-2">
-  <a class="btn btn-dark" href="<?= BASE_URL ?>/?c=tareas&a=crear">
-    <i class="bi bi-plus-circle"></i> Añadir tarea
-  </a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-dark" href="<?= BASE_URL ?>/?c=tareas&a=crear">
+            <i class="bi bi-plus-circle"></i> Añadir tarea
+        </a>
 
-  <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=tareas&a=buscar">
-    <i class="bi bi-search"></i> Buscar
-  </a>
+        <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=tareas&a=buscar">
+            <i class="bi bi-search"></i> Buscar
+        </a>
 
-  <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=auth&a=logout">
-    <i class="bi bi-box-arrow-right"></i> Salir
-  </a>
-</div>
+        <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=tareas&a=rango">
+            <i class="bi bi-calendar-range"></i> Rango
+        </a>
 
+        <a class="btn btn-outline-dark" href="<?= BASE_URL ?>/?c=auth&a=logout">
+            <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+    </div>
 </div>
 
 <?php if (empty($tareas)): ?>
@@ -35,14 +38,21 @@
                 <div class="card-body d-flex gap-3">
                     <div style="width:70px">
                         <img class="img-fluid rounded"
-                            src="<?= BASE_URL ?>/images/categorias/<?= htmlspecialchars($t['categoria_imagen']) ?>"
-                            alt="cat">
+                             src="<?= BASE_URL ?>/images/categorias/<?= htmlspecialchars($t['categoria_imagen']) ?>"
+                             alt="cat">
                     </div>
 
                     <div class="flex-grow-1">
                         <h5 class="mb-1"><?= htmlspecialchars($t['titulo']) ?></h5>
                         <p class="mb-1 text-muted"><?= htmlspecialchars($t['descripcion']) ?></p>
                         <div class="small"><b>Categoría:</b> <?= htmlspecialchars($t['categoria_nombre']) ?></div>
+
+                        <?php if (!empty($t['imagen'])): ?>
+                            <img src="<?= BASE_URL ?>/images/tareas/<?= htmlspecialchars($t['imagen']) ?>"
+                                 class="img-fluid rounded border mt-2"
+                                 style="max-height:120px; object-fit:cover;"
+                                 alt="img tarea">
+                        <?php endif; ?>
                     </div>
 
                     <div class="d-flex flex-column gap-2">
@@ -55,15 +65,15 @@
                         </a>
 
                         <button type="button"
-                            class="btn btn-outline-danger btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalEliminar<?= (int)$t['id'] ?>">
+                                class="btn btn-outline-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalEliminar<?= (int)$t['id'] ?>">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
-
                 </div>
             </div>
+
             <!-- Modal eliminar -->
             <div class="modal fade" id="modalEliminar<?= (int)$t['id'] ?>" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -79,7 +89,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
                             <a class="btn btn-danger"
-                                href="<?= BASE_URL ?>/?c=tareas&a=eliminar&id=<?= (int)$t['id'] ?>">
+                               href="<?= BASE_URL ?>/?c=tareas&a=eliminar&id=<?= (int)$t['id'] ?>">
                                 Eliminar
                             </a>
                         </div>
