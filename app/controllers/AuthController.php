@@ -11,7 +11,7 @@ class AuthController extends Controller
             $usuario = trim($_POST['usuario'] ?? '');
             $clave   = trim($_POST['clave'] ?? '');
 
-            // Credenciales simples (rápido)
+            // Usuario de prueba
             if ($usuario === 'admin' && $clave === '1234') {
                 $_SESSION['user'] = $usuario;
                 $this->redirect('/?c=tareas&a=hoy');

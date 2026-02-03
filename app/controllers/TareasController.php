@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../models/Tarea.php';
@@ -42,8 +43,14 @@ class TareasController extends Controller
             } else {
                 $tareaModel = new Tarea($this->db->pdo());
                 $ok = $tareaModel->create([
-                    'fecha'=>$fecha, 'hora'=>$hora, 'titulo'=>$titulo, 'imagen'=>$imagen,
-                    'descripcion'=>$descripcion, 'prioridad'=>$prioridad, 'lugar'=>$lugar, 'cat_id'=>$cat_id
+                    'fecha' => $fecha,
+                    'hora' => $hora,
+                    'titulo' => $titulo,
+                    'imagen' => $imagen,
+                    'descripcion' => $descripcion,
+                    'prioridad' => $prioridad,
+                    'lugar' => $lugar,
+                    'cat_id' => $cat_id
                 ]);
 
                 if ($ok) $this->redirect('/?c=tareas&a=hoy');
@@ -67,8 +74,112 @@ class TareasController extends Controller
         $tareaModel = new Tarea($this->db->pdo());
         $tarea = $tareaModel->find($id);
 
-        if (!$tarea) { echo "No encontrada"; return; }
+        if (!$tarea) {
+            echo "No encontrada";
+            return;
+        }
 
         $this->view('tareas/show', ['tarea' => $tarea]);
+    }
+
+    public function editar(): void
+    {
+        $this->requireLogin();
+
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/?c=tareas&a=hoy');
+        }
+
+        $tareaModel = new Tarea($this->db->pdo());
+        $tarea = $tareaModel->find($id);
+
+        if (!$tarea) {
+            $this->redirect('/?c=tareas&a=hoy');
+        }
+
+        $catModel = new Categoria($this->db->pdo());
+        $categorias = $catModel->all();
+
+        $this->view('tareas/form', [
+            'modo' => 'editar',
+            'categorias' => $categorias,
+            'error' => '',
+            'tarea' => $tarea
+        ]);
+    }
+
+    public function modificar(): void
+    {
+        $this->requireLogin();
+
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('/?c=tareas&a=hoy');
+        }
+
+        $error = '';
+
+        // Introduce los datos
+        $fecha = $_POST['fecha'] ?? '';
+        $hora  = $_POST['hora'] ?? '';
+        $titulo = trim(filter_input(INPUT_POST, 'titulo', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
+        $descripcion = trim(filter_input(INPUT_POST, 'descripcion', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
+        $lugar = trim(filter_input(INPUT_POST, 'lugar', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
+        $prioridad = (int)($_POST['prioridad'] ?? 1);
+        $cat_id = (int)($_POST['cat_id'] ?? 0);
+        $imagen = trim($_POST['imagen'] ?? '');
+
+        if ($fecha === '' || $hora === '' || $titulo === '' || $descripcion === '' || $lugar === '' || $cat_id <= 0) {
+            $error = "Faltan datos obligatorios";
+        } else {
+            $tareaModel = new Tarea($this->db->pdo());
+            $ok = $tareaModel->update($id, [
+                'fecha' => $fecha,
+                'hora' => $hora,
+                'titulo' => $titulo,
+                'imagen' => $imagen,
+                'descripcion' => $descripcion,
+                'prioridad' => $prioridad,
+                'lugar' => $lugar,
+                'cat_id' => $cat_id
+            ]);
+
+            if ($ok) {
+                $this->redirect('/?c=tareas&a=hoy');
+            }
+            $error = "No se pudo modificar";
+        }
+
+        // En caso de error vuelve a cargar datos
+        $tareaModel = new Tarea($this->db->pdo());
+        $tarea = $tareaModel->find($id);
+
+        $catModel = new Categoria($this->db->pdo());
+        $categorias = $catModel->all();
+
+        $this->view('tareas/form', [
+            'modo' => 'editar',
+            'categorias' => $categorias,
+            'error' => $error,
+            'tarea' => $tarea
+        ]);
+    }
+
+
+    public function eliminar(): void
+    {
+        $this->requireLogin();
+
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->redirect('/?c=tareas&a=hoy');
+        }
+
+        $tareaModel = new Tarea($this->db->pdo());
+        $tareaModel->delete($id);
+
+        $this->redirect('/?c=tareas&a=hoy');
     }
 }

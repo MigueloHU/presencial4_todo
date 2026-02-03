@@ -15,7 +15,7 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ]);
 
-            // Prueba rápida con transacción (lo pide el enunciado)
+            // Prueba con transacción
             $this->pdo->beginTransaction();
             $this->pdo->commit();
 
